@@ -1,3 +1,5 @@
+require('dotenv').config();
+
 var express = require('express');
 var app = express();
 
@@ -37,7 +39,10 @@ app.get('/chromesave/:webpage', function (req, res) {
 
   if (URL.match(regex)) {
     //for allowing NodeJS access to shell scripting.
-    const { exec } = require("child_process");
+    const { exec, execFile } = require("child_process");
+
+    //first, make sure that the darn html save and log folders exist, or we are just wasting our time.
+    execFile('foldersmade_ensure.sh');
 
     //which OS is this being run on?  REQUIRES an accessible chrome binary somewhere.
     const program = process.platform === "win32" ?
@@ -90,7 +95,9 @@ app.get('/chromesave/:webpage', function (req, res) {
   }
 });
 
+let HTTP_PORT = process.env.HTTP_PORT || 5000;
+
 //choose your own port
-app.listen(80, function() {
-  console.log( 'Listening to Port 80' );
+app.listen(HTTP_PORT, function() {
+  console.log( `Listening to Port ${HTTP_PORT}` );
 })
