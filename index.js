@@ -20,9 +20,29 @@ const dir_log = 'storage/logs/';
 //what HTTP port shall NodeJS use for serving static files and also to initiate the Chrome page save operation.
 const HTTP_PORT = process.env.HTTP_PORT || 5000;
 
+//first for the log file name part
+var today_datetime = new Date().toISOString();
+const today_date = today_datetime.slice(0, 10);
+
+//do not want certain characters in the filename coming from raw datetime strings.
+today_datetime = today_datetime.replace( /\:/g, "-" );
+
+//set up the logger
+const logger = winston.createLogger({
+  format: combine(
+    timestamp(),
+    prettyPrint()
+  ),
+
+  transports: [
+    new winston.transports.Console(),
+    new winston.transports.File({ filename: `${dir_log}nodelog_${today_date}.log` })
+  ]
+});
+
 //default endpoint. Nothing really useful.
 app.get('/', function (req, res) {
-  res.send('Hello World!');
+  res.send('Welcome to the Chrome page saving service');
 });
 
 app.get('/views/:file', function (req, res) {
@@ -58,13 +78,6 @@ app.get('/chromesave/:webpage', function (req, res) {
     //first part of the filename for the saved html file. It is derived from the grabbed URL.
     const valid_fn = filenamifyUrl(URL);
 
-    //first for the log file name part
-    var today_datetime = new Date().toISOString();
-    const today_date = today_datetime.slice(0, 10);
-
-    //do not want certain characters in the filename coming from raw datetime strings.
-    today_datetime = today_datetime.replace( /\:/g, "-" );
-
     //the final name for the save html
     const save_file = `${dir_saved_html}${valid_fn}_${today_datetime}.html`;
 
@@ -72,19 +85,6 @@ app.get('/chromesave/:webpage', function (req, res) {
     var shell_script = ` ${program} --headless --disable-gpu --no-sandbox --dump-dom ${URL} >> ${save_file}`;
 
     exec(shell_script, (error, stdout, stderr) => {
-      //set up the logger
-      const logger = winston.createLogger({
-        format: combine(
-          timestamp(),
-          prettyPrint()
-        ),
-
-        transports: [
-          new winston.transports.Console(),
-          new winston.transports.File({ filename: `${dir_log}nodelog_${today_date}.log` })
-        ]
-      });
-
       if (error) {
         logger.error(`error: ${error.message}`);
         return;
