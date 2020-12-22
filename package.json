@@ -1,17 +1,23 @@
 {
-  "name": "Chrome Pagesave",
+  "name": "chrome-pagesave-node-http",
   "version": "0.7.5",
   "description": "Saving a web page html contents using NodeJS, Google Chrome binary (not included) and shell command",
   "main": "index.js",
   "scripts": {
-    "start": "nodemon index.js -e ejs,js",
+    "start": "nodemon index.js -e ejs,js,env",
     "restart": "nodemon helloworld_node_http",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "keywords": ["chromedriver", "headless Chrome", "NodeJS", "Express"],
+  "keywords": [
+    "chromedriver",
+    "headless Chrome",
+    "NodeJS",
+    "Express"
+  ],
   "author": "Karl Schipul",
   "license": "ISC",
   "dependencies": {
+    "dotenv": "^8.2.0",
     "express": "^4.17.1",
     "filenamify-url": "^2.1.1",
     "nodemon": "^2.0.6",
