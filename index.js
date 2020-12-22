@@ -1,3 +1,4 @@
+//GREAT for DOTENV variables. Should be loaded first.
 require('dotenv').config();
 
 var express = require('express');
@@ -12,20 +13,26 @@ const winston = require('winston');
 //tools from winston
 const { combine, timestamp, label, prettyPrint } = winston.format;
 
+//where things are saved to
+const dir_saved_html = 'storage/saved_html/';
+const dir_log = 'storage/logs/';
+
+//what HTTP port shall NodeJS use for serving static files and also to initiate the Chrome page save operation.
+const HTTP_PORT = process.env.HTTP_PORT || 5000;
+
 //default endpoint. Nothing really useful.
 app.get('/', function (req, res) {
   res.send('Hello World!');
 });
 
 app.get('/views/:file', function (req, res) {
-  res.sendFile(__dirname + '/views/' + req.params.file);
+  res.sendFile(__dirname + "/" + dir_saved_html + req.params.file);
 });
 
 //route for getting and saving webpage contents to local html file.
 app.get('/chromesave/:webpage', function (req, res) {
 
   // Base64 encoded string
-  //const base64 = 'QmFzZTY0IEVuY29kaW5nIGluIE5vZGUuanM=';
   const base64 = req.params.webpage;
 
   // create a buffer
@@ -34,8 +41,8 @@ app.get('/chromesave/:webpage', function (req, res) {
   // decode buffer as UTF-8
   const URL = buff.toString('utf-8');
 
-  var expression = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
-  var regex = new RegExp(expression);
+  const expression = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
+  const regex = new RegExp(expression);
 
   if (URL.match(regex)) {
     //for allowing NodeJS access to shell scripting.
@@ -59,7 +66,7 @@ app.get('/chromesave/:webpage', function (req, res) {
     today_datetime = today_datetime.replace( /\:/g, "-" );
 
     //the final name for the save html
-    const save_file = `storage/saved_html/${valid_fn}_${today_datetime}.html`;
+    const save_file = `${dir_saved_html}${valid_fn}_${today_datetime}.html`;
 
     //The meat and potatoes of all this. It grabs from any web URL, then turns the output into an HTML file.
     var shell_script = ` ${program} --headless --disable-gpu --no-sandbox --dump-dom ${URL} >> ${save_file}`;
@@ -74,7 +81,7 @@ app.get('/chromesave/:webpage', function (req, res) {
 
         transports: [
           new winston.transports.Console(),
-          new winston.transports.File({ filename: `storage/logs/nodelog_${today_date}.log` })
+          new winston.transports.File({ filename: `${dir_log}nodelog_${today_date}.log` })
         ]
       });
 
@@ -86,7 +93,12 @@ app.get('/chromesave/:webpage', function (req, res) {
         logger.error(`stderr: ${stderr}`);
         return;
       }
+
+      //success message
       logger.info( {save_file, stdout} );
+
+      //duplicate the saved file. The 'latest' version here is what gets pulled.
+      exec( `cp ${save_file} ${dir_saved_html}${valid_fn}_latest.html` );
     });
 
     res.send('Chrome downloading :' + URL );
@@ -94,8 +106,6 @@ app.get('/chromesave/:webpage', function (req, res) {
     res.send('sorry, not valid :' );
   }
 });
-
-let HTTP_PORT = process.env.HTTP_PORT || 5000;
 
 //choose your own port
 app.listen(HTTP_PORT, function() {
