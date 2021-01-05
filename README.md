@@ -20,9 +20,11 @@ but I do what works for me.
 
 ## Rendering web page:
 
+you may go to http(s?)://(yourwebsite.com:{HTTP_PORT})/chromesave/(base64 encoded string of web URL).
 
+This will render the html file to a folder which can be accessed by the URL style from below.
 
 ## Viewing results:
 
-you may go to (yourwebsite.com:{HTTP_PORT})/views/(your desired webpage URL, no http prefix)_latest.html
+you may go to http(s?)://(yourwebsite.com:{HTTP_PORT})/views/(your desired webpage URL, no http prefix)_latest.html
 after running a save operation. 'HTTP_PORT' refers to the setting in your .env file for the HTTP port.
