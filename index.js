@@ -1,10 +1,13 @@
+import { createRequire } from 'module';
+const require = createRequire(import.meta.url);
+
 //GREAT for DOTENV variables. Should be loaded first.
 require('dotenv').config();
 
 var express = require('express');
 var app = express();
 
-//good for changing a website 
+//good for changing a website URL
 const filenamifyUrl = require('filenamify-url');
 
 //Like Logger in Java and PHP
@@ -12,6 +15,9 @@ const winston = require('winston');
 
 //tools from winston
 const { combine, timestamp, label, prettyPrint } = winston.format;
+
+import chromeSaveController from './ChromeSaveController.js';
+
 
 //where things are saved to
 const dir_saved_html = 'storage/saved_html/';
@@ -40,7 +46,7 @@ const logger = winston.createLogger({
   ]
 });
 
-//default endpoint. Nothing really useful.
+//default endpoint. Nothing really useful. Well... except for maybe a basic ping.
 app.get('/', function (req, res) {
   res.send('Welcome to the Chrome page saving service');
 });
@@ -49,8 +55,16 @@ app.get('/views/:file', function (req, res) {
   res.sendFile(__dirname + "/" + dir_saved_html + req.params.file);
 });
 
-//route for getting and saving webpage contents to local html file.
 app.get('/chromesave/:webpage', function (req, res) {
+  chromeSaveController.dir_saved_html = dir_saved_html;
+
+  chromeSaveController.today_datetime = today_datetime;
+
+  chromeSaveController.save(req, res);
+});
+
+//route for getting and saving webpage contents to local html file.
+app.get('/chromesaveold/:webpage', function (req, res) {
 
   // Base64 encoded string
   const base64 = req.params.webpage;
@@ -82,7 +96,7 @@ app.get('/chromesave/:webpage', function (req, res) {
     const save_file = `${dir_saved_html}${valid_fn}_${today_datetime}.html`;
 
     //The meat and potatoes of all this. It grabs from any web URL, then turns the output into an HTML file.
-    var shell_script = ` ${program} --headless --disable-gpu --no-sandbox --dump-dom ${URL} >> ${save_file}`;
+    var shell_script = ` ${program} --headless --disable-gpu --no-sandbox --virtual-time-budget=500000 --dump-dom ${URL} >> ${save_file}`;
 
     exec(shell_script, (error, stdout, stderr) => {
       if (error) {
