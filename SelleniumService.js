@@ -12,6 +12,7 @@ var webdriver = require('selenium-webdriver'),
     options   = new chrome.Options();
     options.addArguments('headless'); // note: without dashes
     options.addArguments('disable-gpu');
+    options.addArguments('no-sandbox');
 
 var path = require('chromedriver').path;
 
