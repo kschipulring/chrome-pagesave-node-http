@@ -1,5 +1,5 @@
 import SelleniumService from './SelleniumService.js';
-
+import ShellSaveService from './ShellSaveService.js';
 
 /*
 const AES = require("crypto-js/aes");
@@ -33,9 +33,7 @@ class chromeSaveController{
     //must be a valid URL
     if (URL.match(regex)) {
 
-      const dir_saved_html = this.dir_saved_html;
-      
-      const today_datetime = this.today_datetime;
+      const {dir_saved_html, today_datetime} = this;
 
       //first part of the filename for the saved html file. It is derived from the grabbed URL.
       const valid_fn = filenamifyUrl(URL);
@@ -50,16 +48,15 @@ class chromeSaveController{
       if( process.env.SAVE_DRIVER === "Sellenium" ){
         let selleniumService = new SelleniumService(res);
 
-        selleniumService.driverGetPage(URL, {save_file, latest_file});
+        selleniumService.driverGetPage({URL, save_file, latest_file});
       }else{
+        let shellSaveService = new ShellSaveService(res);
 
+        shellSaveService.save({URL, save_file, latest_file});
       }
-      
-      //res.send('Chrome downloading :' + save_file + " , " + process.env.SAVE_DRIVER );
     }else{
-      res.send('sorry, not a valid URL with : ' + URL );
+      res.status(417).json({"error": `sorry, not a valid URL with : ${URL}`});
     }
-
   }
 }
 
