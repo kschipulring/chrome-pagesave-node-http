@@ -31,26 +31,34 @@ export default class SelleniumService {
    * using the Sellenium driver, takes the HTML content and saves it in to a local file.
    *  
    * @param {webdriver.Builder} driver - from Sellenium. Performs operations.
-   * @param {{save_file: string, latest_file: string}} - 'save_file' is what the 
-   * end file gets saved as. 'latest_file' is what 'save_file' is duplicated in to.
+   * @param {{URL: string, save_file: string, latest_file: string}} - 
+   * 'URL' is the source URL that Chromedriver worked with. 'save_file' is what 
+   * the end file gets saved as 'latest_file' is what 'save_file' is duplicated in to.
   */
-  async saveTotalBodyOutput(driver, {save_file, latest_file}){
+  async save(driver, {URL, save_file, latest_file}){
 
-    //good experiment
+    //the raw HTML content.
     let page_source = await driver.getPageSource();
   
     //save the file.
-    fs.writeFile(save_file, page_source, (err) => {
-      if(err) {
-        this.res.send(err);
+    fs.writeFile(save_file, page_source, (error) => {
+      if(error) {
+        logger.error(`error: ${error}`);
+
+        this.res.send(error);
       }else{
         //for allowing NodeJS access to shell scripting.
         const { exec } = require("child_process");
 
+        let message = `The file was saved from ${URL}`;
+
+        //success message
+        logger.info( {save_file, message} );
+
         //duplicate the saved file. The 'latest' version here is what gets pulled.
         exec( `cp ${save_file} ${latest_file}` );
 
-        this.res.send("The file was saved!");
+        this.res.json( {message, save_file} );
       }
     });
   
@@ -62,11 +70,11 @@ export default class SelleniumService {
    * After a specified element shows up in the headless chrome page,
    * then it tells above method to save it.
    *  
-   * @param {string} URL - what URL should Chromedriver and Sellenium work with?
-   * @param {{save_file: string, latest_file: string}} - 'save_file' is what the 
-   * end file gets saved as. 'latest_file' is what 'save_file' is duplicated in to.
+   * @param {{URL: string, save_file: string, latest_file: string}} - 
+   * 'URL' is the source URL that Chromedriver works with. 'save_file' is what 
+   * the end file gets saved as. 'latest_file' is what 'save_file' is duplicated in to.
   */
-  async driverGetPage(URL, {save_file, latest_file}){
+  async driverGetPage({URL, save_file, latest_file}){
   
     //using var instead of let, because it is more flexible between different scopes.
     var driver = new webdriver.Builder()
@@ -77,7 +85,8 @@ export default class SelleniumService {
   
     /*
     similar to CURL in PHP. But in a way, it remains alive with changing output 
-    over time, unlike normal CURL.
+    over time, unlike normal CURL. This is because it is really an actual 
+    web browser process, not a mere file / network / socket connection grab.
     */
     await driver.get(URL);
 
@@ -91,7 +100,7 @@ export default class SelleniumService {
     driver.wait(until.elementLocated(By.id(`footer_nav`)), wait_interval).then(el => {
   
       //useful stuff in seperate async function, because this one hates 'await' operations.
-      this.saveTotalBodyOutput( driver, {save_file, latest_file} );
+      this.save( driver, {URL, save_file, latest_file} );
     });
   }
 }
