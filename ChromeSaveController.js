@@ -43,11 +43,14 @@ class chromeSaveController{
       //the final name for the save html
       const save_file = `${dir_saved_html}${valid_fn}_${today_datetime}.html`;
 
+      //the final name for the save html
+      const latest_file = `${dir_saved_html}${valid_fn}_latest.html`;
+
       //the 'res' output shall occur in one of 2 operations below.
       if( process.env.SAVE_DRIVER === "Sellenium" ){
         let selleniumService = new SelleniumService(res);
 
-        selleniumService.driverGetPage(URL, save_file);
+        selleniumService.driverGetPage(URL, {save_file, latest_file});
       }else{
 
       }
