@@ -1,8 +1,8 @@
 import {require, AbstractCoreService} from './AbstractCoreService.js';
 
 export default class ShellSaveService extends AbstractCoreService {
-  constructor(res, host){
-    super(res, host);
+  constructor(res){
+    super(res);
   }
 
   /**
@@ -26,7 +26,7 @@ export default class ShellSaveService extends AbstractCoreService {
 
     //The meat and potatoes of all this. It grabs from any web URL, then turns the output into an HTML file.
     var shell_script = ` ${program} --headless --disable-gpu --no-sandbox`;
-    shell_script += ` --virtual-time-budget=${wait_secs} --dump-dom ${URL} >> ${save_file}`;
+    shell_script += ` --virtual-time-budget=${wait_interval} --dump-dom ${URL} >> ${save_file}`;
 
     exec(shell_script, (error, stdout, stderr) => {
       if (error) {
