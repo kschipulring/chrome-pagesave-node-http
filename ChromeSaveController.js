@@ -15,7 +15,6 @@ import crypto from 'crypto';
 import filenamifyUrl from 'filenamify-url';
 
 class chromeSaveController{
-
   save(req, res){
     // Base64 encoded string
     const base64 = req.params.webpage;
@@ -30,10 +29,11 @@ class chromeSaveController{
     const expression = /[-a-zA-Z0-9@:%._\+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_\+.~#?&//=]*)?/gi;
     const regex = new RegExp(expression);
 
+    //only seems to work when done from here, instead of index.js
+    global.host = req.get('host');
+
     //must be a valid URL
     if (URL.match(regex)) {
-
-      const {dir_saved_html, today_datetime} = this;
 
       //first part of the filename for the saved html file. It is derived from the grabbed URL.
       const valid_fn = filenamifyUrl(URL);
@@ -44,15 +44,17 @@ class chromeSaveController{
       //the final name for the save html
       const latest_file = `${dir_saved_html}${valid_fn}_latest.html`;
 
+      let param_obj = {URL, save_file, latest_file};
+
       //the 'res' output shall occur in one of 2 operations below.
       if( process.env.SAVE_DRIVER === "Sellenium" ){
         let selleniumService = new SelleniumService(res);
 
-        selleniumService.driverGetPage({URL, save_file, latest_file});
+        selleniumService.driverGetPage(param_obj);
       }else{
         let shellSaveService = new ShellSaveService(res);
 
-        shellSaveService.save({URL, save_file, latest_file});
+        shellSaveService.save(param_obj);
       }
     }else{
       res.status(417).json({"error": `sorry, not a valid URL with : ${URL}`});
