@@ -1,12 +1,8 @@
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
+import {require, AbstractCoreService} from './AbstractCoreService.js';
 
-//GREAT for DOTENV variables. Should be loaded first.
-require('dotenv').config();
-
-export default class ShellSaveService {
-  constructor(res){
-    this.res = res;
+export default class ShellSaveService extends AbstractCoreService {
+  constructor(res, host){
+    super(res, host);
   }
 
   /**
@@ -48,16 +44,7 @@ export default class ShellSaveService {
         return;
       }
 
-      let message = `The file was saved from ${URL}`;
-
-      //success message
-      logger.info( {save_file, message, stdout} );
-
-      //duplicate the saved file. The 'latest' version here is what gets pulled.
-      exec( `cp ${save_file} ${latest_file}` );
-
-      this.res.json( {message, save_file, stdout} );
+      this.onSuccess( {URL, save_file, latest_file} );
     });
   }
-
 }

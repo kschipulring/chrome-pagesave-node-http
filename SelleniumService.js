@@ -1,8 +1,4 @@
-import { createRequire } from 'module';
-const require = createRequire(import.meta.url);
-
-//GREAT for DOTENV variables. Should be loaded first.
-require('dotenv').config();
+import {require, AbstractCoreService} from './AbstractCoreService.js';
 
 //have to use 'require' for selenium-webdriver and derivatives. Does not play nice with 'import'.
 var webdriver = require('selenium-webdriver'),
@@ -22,9 +18,9 @@ chrome.setDefaultService(service);
 //save files
 var fs = require('fs');
 
-export default class SelleniumService {
+export default class SelleniumService extends AbstractCoreService {
   constructor(res){
-    this.res = res;
+    super(res);
   }
 
   /**
@@ -45,20 +41,9 @@ export default class SelleniumService {
       if(error) {
         logger.error(`error: ${error}`);
 
-        this.res.send(error);
+        this.status(500).res.send(error);
       }else{
-        //for allowing NodeJS access to shell scripting.
-        const { exec } = require("child_process");
-
-        let message = `The file was saved from ${URL}`;
-
-        //success message
-        logger.info( {save_file, message} );
-
-        //duplicate the saved file. The 'latest' version here is what gets pulled.
-        exec( `cp ${save_file} ${latest_file}` );
-
-        this.res.json( {message, save_file} );
+        this.onSuccess( {URL, save_file, latest_file} );
       }
     });
   
