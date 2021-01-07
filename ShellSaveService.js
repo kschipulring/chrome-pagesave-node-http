@@ -14,12 +14,6 @@ export default class ShellSaveService extends AbstractCoreService {
    * the end file gets saved as. 'latest_file' is what 'save_file' is duplicated in to.
   */
   save({URL, save_file, latest_file}){
-    //for allowing NodeJS access to shell scripting.
-    const { exec, execFile } = require("child_process");
-
-    //first, make sure that the darn html save and log folders exist, or we are just wasting our time.
-    execFile('foldersmade_ensure.sh');
-
     //which OS is this being run on?  REQUIRES an accessible chrome binary somewhere.
     const program = process.platform === "win32" ?
       '"C:\\Program Files (x86)\\Google\\Chrome\\Application\\chrome" ' : "google-chrome ";
