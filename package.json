@@ -4,6 +4,8 @@
   "description": "Saving a web page html contents using NodeJS, Google Chrome binary (not included) and shell command",
   "main": "index.js",
   "scripts": {
+    "preinstall": "npm i -g nodemon pm2",
+    "serve": "pm2 start chromepage-server.json",
     "start": "nodemon index.js -e ejs,js,env",
     "restart": "nodemon helloworld_node_http",
     "test": "echo \"Error: no test specified\" && exit 1"
