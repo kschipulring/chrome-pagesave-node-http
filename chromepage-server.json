@@ -1,0 +1,6 @@
+{
+  "name" : "chromepage-server",
+  "script" : "index.js",
+  "watch" : true,
+  "ignore_watch": ["node_modules", "storage"]
+}
