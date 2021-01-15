@@ -1,6 +1,6 @@
 {
   "name": "chrome-pagesave-node-http",
-  "version": "0.7.5",
+  "version": "0.9.0",
   "description": "Saving a web page html contents using NodeJS, Google Chrome binary (not included) and shell command",
   "main": "index.js",
   "scripts": {
