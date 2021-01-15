@@ -6,7 +6,7 @@ const AES = require("crypto-js/aes");
 
 console.log( "xxxx" );
 
-console.log( AES.encrypt("The quick brown fox jumps over the lazy dog.", "lol_fart").toString() );
+console.log( AES.encrypt("The quick brown fox jumps over the lazy dog.", "some_test").toString() );
 */
 
 import crypto from 'crypto';
@@ -31,6 +31,7 @@ class chromeSaveController{
 
     //only seems to work when done from here, instead of index.js
     global.host = req.get('host');
+    global.protocol = req.protocol;
 
     //must be a valid URL
     if (URL.match(regex)) {

@@ -28,7 +28,7 @@ class AbstractCoreService {
     //duplicate the saved file. The 'latest' version here is what gets pulled.
     exec( `cp ${save_file} ${latest_file}` );
 
-    let view_file = `${host}/views/${filename}`;
+    let view_file = `${protocol}://${host}/views/${filename}`;
 
     this.res.json( {message, view_file, stdout} );
   }
