@@ -53,7 +53,11 @@ import chromeSaveController from './ChromeSaveController.js';
 
 //default endpoint. Nothing really useful. Well... except for maybe a basic ping.
 app.get('/', function (req, res) {
-  res.json( {"message": 'Welcome to the Chrome page saving service', host} );
+  let host = req.headers.host || "";
+  let protocol = req.protocol;
+  let base_url = `${protocol}://${host}`;
+  
+  res.json( {"message": 'Welcome to the Chrome page saving service', base_url} );
 });
 
 //placeholder to remind those accessing it that an encoded URL is required as URL suffix.
