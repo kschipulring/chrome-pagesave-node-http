@@ -1,5 +1,7 @@
 import {require, AbstractCoreService} from './AbstractCoreService.js';
 
+var request = require("request");
+
 //have to use 'require' for selenium-webdriver and derivatives. Does not play nice with 'import'.
 var webdriver = require('selenium-webdriver'),
     chrome    = require('selenium-webdriver/chrome'),
@@ -32,10 +34,58 @@ export default class SelleniumService extends AbstractCoreService {
    * the end file gets saved as 'latest_file' is what 'save_file' is duplicated in to.
   */
   async save(driver, {URL, save_file, latest_file}){
+    //the 'By' parameter key name
+    let ek = this.query.k || "tagName";
+    //let ek = "tagName";
+
+    //the 'By' parameter value
+    let ev = this.query.v || "main";
+    //let ev = "main";
 
     //the raw HTML content.
-    let page_source = await driver.getPageSource();
+    var page_source = "";
+
+    if(this.query.k && this.query.v){
+      console.log( this.query );
+
+      //'By' keynames can include 'tagName', 'css', 'id', 'name'
+      page_source = await driver.findElement( By[ek](ev) )
+        .getAttribute("outerHTML");
+
+
+      //get the same source page, but using more standard means (CURL like)
+      request(URL, (error, response, body) => {
+        if (!error && response.statusCode == 200) {
+          
+          /*
+          insert the extracted html from earlier chromedriver grab into the 
+          string from the regular doc from CURL.
+          */
+
+          //first, find where it should be inserted
+          let regex = /<div ([^>])?id=\"root\"><\/div>/i;
+
+          let replacer = `<div id="root">${page_source}</div>`;
+
+          page_source = body.replace(regex, replacer);
+
+          this.writeFile(page_source, {URL, save_file, latest_file});
+        }else{
+          console.log( {error, URL} );
+        }
+      });
+
+    }else{
+      //default, full page is gathered from the Chromedriver request
+      page_source = await driver.getPageSource();
+
+      this.writeFile(page_source, {URL, save_file, latest_file});
+    }
   
+    driver.quit();
+  }
+
+  writeFile(page_source, {URL, save_file, latest_file}){
     //save the file.
     fs.writeFile(save_file, page_source, (error) => {
       if(error) {
@@ -46,8 +96,6 @@ export default class SelleniumService extends AbstractCoreService {
         this.onSuccess( {URL, save_file, latest_file} );
       }
     });
-  
-    driver.quit();
   }
   
   /**
