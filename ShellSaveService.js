@@ -1,8 +1,8 @@
 import {require, AbstractCoreService} from './AbstractCoreService.js';
 
 export default class ShellSaveService extends AbstractCoreService {
-  constructor(res){
-    super(res);
+  constructor(res, query){
+    super(res, query);
   }
 
   /**

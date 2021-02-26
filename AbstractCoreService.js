@@ -5,15 +5,16 @@ const require = createRequire(import.meta.url);
 require('dotenv').config();
 
 class AbstractCoreService {
-  constructor(res){
+  constructor(res, query){
     if (new.target === AbstractCoreService) {
       throw new TypeError("Cannot construct AbstractCoreService instances directly");
     }
 
     this.res = res;
+    this.query = query;
   }
 
-  onSuccess( {URL, save_file, latest_file, stdout=null} ){
+  onSuccess( {URL, save_file, latest_file, stdout=null, output} ){
     let message = `The file was saved from ${URL}`;
 
     var path = require('path');
@@ -30,7 +31,7 @@ class AbstractCoreService {
 
     let view_file = `${protocol}://${host}/views/${filename}`;
 
-    this.res.json( {message, view_file, stdout} );
+    this.res.json( {message, view_file, stdout, output} );
   }
 }
 

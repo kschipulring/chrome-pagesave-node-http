@@ -34,7 +34,7 @@ class chromeSaveController{
     global.protocol = req.protocol;
 
     //must be a valid URL
-    if (URL.match(regex)) {
+    if (URL.match(regex) || URL.indexOf("localhost") > -1 ) {
 
       //first part of the filename for the saved html file. It is derived from the grabbed URL.
       const valid_fn = filenamifyUrl(URL);
@@ -47,13 +47,16 @@ class chromeSaveController{
 
       let param_obj = {URL, save_file, latest_file};
 
+      //request query parameters
+      let q = req.query || {};  //res.json( {q} );
+
       //the 'res' output shall occur in one of 2 operations below.
       if( process.env.SAVE_DRIVER === "Sellenium" ){
-        let selleniumService = new SelleniumService(res);
+        let selleniumService = new SelleniumService(res, q);
 
         selleniumService.driverGetPage(param_obj);
       }else{
-        let shellSaveService = new ShellSaveService(res);
+        let shellSaveService = new ShellSaveService(res, q);
 
         shellSaveService.save(param_obj);
       }

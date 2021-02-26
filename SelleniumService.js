@@ -19,8 +19,8 @@ chrome.setDefaultService(service);
 var fs = require('fs');
 
 export default class SelleniumService extends AbstractCoreService {
-  constructor(res){
-    super(res);
+  constructor(res, query){
+    super(res, query);
   }
 
   /**
@@ -80,9 +80,18 @@ export default class SelleniumService extends AbstractCoreService {
 
     //covert to miliseconds
     let wait_interval = wait_secs * 1000;
+
+    //the 'By' parameter key name
+    let wk = this.query && this.query.k ? this.query.k : "id";
+
+    //the 'By' parameter value
+    let wv = this.query && this.query.v ? this.query.v : "footer_nav";
+
+    //let wk = "id";
+    //let wv = "footer_nav";
   
     //wait for something useful to show up on the page.
-    driver.wait(until.elementLocated(By.id(`footer_nav`)), wait_interval).then(el => {
+    driver.wait(until.elementLocated(By[wk](wv)), wait_interval).then(el => {
   
       //useful stuff in seperate async function, because this one hates 'await' operations.
       this.save( driver, {URL, save_file, latest_file} );
