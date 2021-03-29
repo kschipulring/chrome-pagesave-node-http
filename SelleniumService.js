@@ -9,7 +9,7 @@ var webdriver = require('selenium-webdriver'),
     until     = webdriver.until,
     options   = new chrome.Options();
     //options.addArguments('user-data-dir=./user-data-dir');
-    /*options.addArguments('headless');*/ // note: without dashes
+    options.addArguments('headless'); // note: without dashes
     options.addArguments('disable-gpu');
     options.addArguments('no-sandbox');
 
