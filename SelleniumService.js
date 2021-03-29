@@ -8,9 +8,12 @@ var webdriver = require('selenium-webdriver'),
     By        = webdriver.By,
     until     = webdriver.until,
     options   = new chrome.Options();
-    options.addArguments('headless'); // note: without dashes
+    //options.addArguments('user-data-dir=./user-data-dir');
+    /*options.addArguments('headless');*/ // note: without dashes
     options.addArguments('disable-gpu');
     options.addArguments('no-sandbox');
+
+    options.addArguments('profile-directory="Profile 1"');
 
 var path = require('chromedriver').path;
 
