@@ -19,7 +19,7 @@
   "author": "Karl Schipul",
   "license": "ISC",
   "dependencies": {
-    "chromedriver": "^87.0.4",
+    "chromedriver": "^89.0.0",
     "crypto-js": "^4.0.0",
     "dotenv": "^8.2.0",
     "express": "^4.17.1",
