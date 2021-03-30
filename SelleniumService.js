@@ -195,10 +195,10 @@ export default class SelleniumService extends AbstractCoreService {
   async driverGetPage({URL, save_file, latest_file}){
 
     //the 'By' parameter key name
-    let wk = "id";
+    let wk = "tagName";
 
     //the 'By' parameter value
-    let wv = "portfolio_json";
+    let wv = "body";
 
     //should the specified element above be waited to have content for?
     let content_wait = false;
