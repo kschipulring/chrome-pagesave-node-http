@@ -48,7 +48,7 @@ class chromeSaveController{
       let param_obj = {URL, save_file, latest_file};
 
       //request query parameters
-      let q = req.query || {};  //res.json( {q} );
+      let q = req.query || {};
 
       //the 'res' output shall occur in one of 2 operations below.
       if( process.env.SAVE_DRIVER === "Sellenium" ){
