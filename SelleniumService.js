@@ -166,7 +166,7 @@ export default class SelleniumService extends AbstractCoreService {
       return el.innerHTML`;
 
       driver.executeScript(script).then((return_value) => {
-        console.log('returned ', return_value);
+        //console.log('returned ', return_value);
 
         //if there is something worthwhile in the specified element, then save the page contents. (or if the limit is up)
         if( (return_value && return_value.length > 0) || limit === 0 ){
@@ -220,13 +220,25 @@ export default class SelleniumService extends AbstractCoreService {
     //how patient should we be with the Sellenium webdriver to find the desired HTML element (in seconds)?
     let wait_secs = process.env.WAIT_SECS || 120;
 
+    let env_wait = null;
+
+    //If a DOTEnv variable for 'BY_OPTS' was set, along with a sub-key from it for 'wait'
+    if( process.env.BY_OPTS ){
+      let temp_by_opts = JSON.parse(process.env.BY_OPTS);
+
+      if(temp_by_opts.wait){
+        env_wait = temp_by_opts.wait;
+      }
+    }
+
     //covert to miliseconds
     let wait_interval = wait_secs * 1000;
 
-    console.log( this.query.wait, typeof(this.query.wait) );
+    //if there is a URL query parameter for wait, or if there is equivalent from DOTEnv setting.
+    if( (this.query && this.query.wait) || env_wait ){
 
-    if( this.query && this.query.wait ){
-      let wait = JSON.parse( this.query.wait );
+      //see if the request query has the 'wait' value. Otherwise, use the one from DOTEnv.
+      let wait = this.query.wait ? JSON.parse(this.query.wait) : env_wait;
 
       if(typeof(wait) === "object"){
         wk = wait.k || wk;
@@ -240,9 +252,11 @@ export default class SelleniumService extends AbstractCoreService {
     }
 
     console.log({wk, wv});
-  
+
+    (await driver).manage().setTimeouts( {implicit: wait_interval} );
+
     //wait for the specified element to show up on the page.
-    driver.wait(until.elementLocated(By[wk](wv)), wait_interval).then(el => {
+    (await driver).findElement( By[wk](wv) ).then(() => {
 
       //should the element above ALSO have content in it?
       if( content_wait ){
@@ -250,6 +264,15 @@ export default class SelleniumService extends AbstractCoreService {
       }else{
         this.save( driver, {URL, save_file, latest_file} );
       }
+
+    }).catch((e) => {
+      let error = e.name === "NoSuchElementError" && e.remoteStacktrace ? 
+        `elements selected by ${wk} => ${wv} ... not found` : e;
+
+      console.log( {error} );
+
+      this.res.status(417).json( {error} );
     });
+
   }
 }
